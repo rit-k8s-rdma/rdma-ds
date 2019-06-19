@@ -50,3 +50,19 @@ This will do the following:
   - `-e PORT=5000` - specifies the port for the server to run on, if none is specified it will default to port 54005
   - `--network host` - will share the network with your host OS, so you can access the api by going to localhost:5000
   - `rdma-ds-v1` - the name of the image. NOTE if you build with a different image name, you will need to change this
+
+## Avoiding Dockerhub
+If you want to avoid docker hub completely, you can save the image in a tar and than load it in.
+Save command:
+```
+docker save <image-name>:<image-tag> > <save-name>.tar
+```
+Load command:
+```
+docker load < <save-name>.tar
+```
+Ex:
+```
+docker save rdma-ds:latest > rdma-ds.tar
+docker load < rdma-ds.tar
+```
