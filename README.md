@@ -36,7 +36,7 @@ To build binaries for all architures and place them in a bin directory run:
 ## Docker
 To build the docker image run the following in the root directory of this repo:
 ```
-docker build -t rdma-ds-v1 .
+docker build -t rdma-ds-v1:latest .
 ```
 This will build an image with `rdma-ds-v1` as its name.
 
