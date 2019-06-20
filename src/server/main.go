@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/swrap/rdma-ds/v1"
+	"github.com/swrap/rdma-ds/src"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 	if len(port) == 0 {
 		port = "54005"
 	}
-	server := v1.CreateServer(port)
+	server := src.CreateServer(port)
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Error running server: %s", err)
 	}

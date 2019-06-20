@@ -1,4 +1,4 @@
-package v1_test
+package src_test
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"net/http"
 
-	"github.com/swrap/rdma-ds/v1"
+	"github.com/swrap/rdma-ds/src"
 )
 
 func Test_getPfs(t *testing.T) {
@@ -16,7 +16,7 @@ func Test_getPfs(t *testing.T) {
 	var server *http.Server
 
 	go func() {
-		server = v1.CreateServer(port)
+		server = src.CreateServer(port)
 		if err := server.ListenAndServe(); err != nil {
 			t.Fatalf("Failed to run server: %s", err)
 		}
@@ -24,7 +24,7 @@ func Test_getPfs(t *testing.T) {
 
 	time.Sleep(100 * time.Millisecond)
 
-	_, err := v1.GetNodeInfo(host, port)
+	_, err := src.GetNodeInfo(host, port)
 	if err != nil {
 		t.Error("Failed to get node info")
 	}

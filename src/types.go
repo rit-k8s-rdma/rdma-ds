@@ -1,4 +1,4 @@
-package v1
+package src
 
 type PF struct {
 	UsedTxRate     int   `json:"used_tx_rate"`

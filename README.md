@@ -5,7 +5,7 @@ This dameon-set will run on every node and will be a RESTful API endpoint for qu
 ## Test API
 To test the API run the following commands:
 ```
-cd v1
+cd src
 go test
 ```
 
@@ -16,7 +16,7 @@ The following variables are able to be modefied to change the server running:
 ## Building Binaries (for testing or for use)
 
 ### Client
-To use the client library import `github.com/swrap/rdma-ds/v1` and utilize the built in supported functions.
+To use the client library import `github.com/swrap/rdma-ds/src` and utilize the built in supported functions.
 
 ### Server Build and Run
 To start the server run the script below:
@@ -36,9 +36,9 @@ To build binaries for all architures and place them in a bin directory run:
 ## Docker
 To build the docker image run the following in the root directory of this repo:
 ```
-docker build -t rdma-ds-v1:latest .
+docker build -t rdma-ds:latest .
 ```
-This will build an image with `rdma-ds-v1` as its name.
+This will build an image with `rdma-ds` as its name.
 
 To run this image run the following command:
 ```
@@ -49,7 +49,7 @@ This will do the following:
   - `--rm` - removes the container when stopped
   - `-e PORT=5000` - specifies the port for the server to run on, if none is specified it will default to port 54005
   - `--network host` - will share the network with your host OS, so you can access the api by going to localhost:5000
-  - `rdma-ds-v1` - the name of the image. NOTE if you build with a different image name, you will need to change this
+  - `rdma-ds` - the name of the image. NOTE if you build with a different image name, you will need to change this
 
 ## Avoiding Dockerhub
 If you want to avoid docker hub completely, you can save the image in a tar and than load it in.

@@ -7,7 +7,7 @@ if [[ -z $VERSION ]]; then
 fi
 
 BINARY_NAME="rdma-ds-v${VERSION}"
-SERVER_DIR="v1/server"
+SERVER_DIR="src/server"
 
 mkdir -p bin
 for GOOS in darwin linux windows; do

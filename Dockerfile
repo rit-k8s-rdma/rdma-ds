@@ -4,7 +4,7 @@ WORKDIR /go/src/github.com/swrap/rdma-ds
 
 COPY . .
 
-RUN ( cd v1/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app && mv app ../../ )
+RUN ( cd src/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app && mv app ../../ )
 
 FROM scratch
 

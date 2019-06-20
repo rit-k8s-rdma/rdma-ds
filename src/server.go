@@ -1,4 +1,4 @@
-package v1
+package src
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 
 const version = "0.1"
 const message = `AvailableEndpoints:
-	\getpfs - returns list of available vfs
+	/getpfs - returns list of available vfs
 	
 	Version: %s
 	`
