@@ -2,7 +2,7 @@ package src
 
 type PF struct {
 	UsedTxRate     uint  `json:"used_tx_rate"`
-	CapacityTxRate int   `json:"capacity_tx_rate"`
+	CapacityTxRate uint  `json:"capacity_tx_rate"`
 	UsedVFs        uint  `json:"used_vfs"`
 	CapacityVFs    uint  `json:"capacity_vfs"`
 	VFs            []*VF `json:"vfs"`
@@ -27,5 +27,5 @@ type VF struct {
 type UserConfig struct {
 	Mode           string   `json:"mode"`
 	PfNetdevices   []string `json:"pfNetdevices"`
-	PfMaxBandwidth []int    `json:"pfMaxBandwidth"`
+	PfMaxBandwidth []uint   `json:"pfMaxBandwidth"`
 }
