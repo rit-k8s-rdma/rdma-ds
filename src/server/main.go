@@ -35,15 +35,15 @@ func main() {
 	log.Printf("Finished Loading Config:\n%s\n", string(output))
 
 	if len(config.PfNetdevices) == 0 {
-		log.Println("ERROR: no PfNetdevices set in configuration, this node cannot schedule any RDMA pods")
+		log.Println("ERROR: no PfNetdevices set in configuration, No RMDA pods can be scheduled to this node")
 	}
 
 	if len(config.PfMaxBandwidth) == 0 {
-		log.Println("ERROR: no PfMaxBandwidth set in configuration, this node cannot schedule any RDMA pods")
+		log.Println("ERROR: no PfMaxBandwidth set in configuration, No RMDA pods can be scheduled to this node")
 	}
 
 	if len(config.PfMaxBandwidth) != len(config.PfNetdevices) {
-		log.Println("ERROR: len(config.PfMaxBandwidth) != len(config.PfNetdevices), this node cannot schedule any RDMA pods")
+		log.Println("ERROR: len(config.PfMaxBandwidth) != len(config.PfNetdevices), No RMDA pods can be scheduled to this node")
 	}
 
 	//start up server
