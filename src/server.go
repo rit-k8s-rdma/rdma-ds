@@ -134,10 +134,10 @@ func setVFConfig(pf string, vfi uint, vf *VF) error {
 
 //getNodeData reads the systems configuration files for each pf
 //and vf.
-func getNodeData(userConfig UserConfig) ([]*PF, error) {
+func getNodeData(systemConfig SystemConfig) ([]*PF, error) {
 	//checks pfs and make sure all are enabled
 	//orders pfs by the most number of vfs earlier on
-	pfs, err := sriov.GetPFs("", userConfig.PfNetdevices)
+	pfs, err := sriov.GetPFs("", systemConfig.GetDeviceNames())
 	if err != nil {
 		return nil, err
 	}
@@ -176,19 +176,19 @@ func getNodeData(userConfig UserConfig) ([]*PF, error) {
 			}
 			tmpNodePf.VFs = append(tmpNodePf.VFs, &vf)
 		}
-		if len(userConfig.PfMaxBandwidth) != len(userConfig.PfNetdevices) {
-			log.Println("WARNING: not setting capacityTxRate b/c len(pfNetdevices) != len(pfMaxBandwidth)")
-		} else {
-			tmpNodePf.CapacityTxRate = userConfig.PfMaxBandwidth[0]
+		rate, err := systemConfig.GetDeviceSendingRate(pf)
+		if err != nil {
+			log.Printf("ERROR: retrieving device[%s] sending rate: %s\n", pf, err)
 		}
+		tmpNodePf.CapacityTxRate = rate
 		nodePfs = append(nodePfs, &tmpNodePf)
 	}
 	return nodePfs, nil
 }
 
-func CreateServer(port string, userConfig UserConfig) *http.Server {
+func CreateServer(port string, systemConfig SystemConfig) *http.Server {
 	http.HandleFunc("/getpfs", func(w http.ResponseWriter, r *http.Request) {
-		pfs, err := getNodeData(userConfig)
+		pfs, err := getNodeData(systemConfig)
 		if err != nil {
 			fmt.Fprintf(w, "ERROR: %s", err)
 			return

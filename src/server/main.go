@@ -1,49 +1,36 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
 
+	"github.com/cal8384/k8s-rdma-common/mellanox"
 	"github.com/swrap/rdma-ds/src"
-)
-
-const (
-	configFilePath = "/k8s-rdma-sriov/config.json"
 )
 
 func main() {
 	//load in config
-	log.Printf("Reading in config file from: %s\n", configFilePath)
-	configFileData, err := ioutil.ReadFile(configFilePath)
-	if err != nil {
-		log.Fatalf("Error reading in config file[%s]: %s\n", configFilePath, err)
-	}
+	log.Printf("INFO: Gathering system information...\n")
 
-	//marshal config
-	var config src.UserConfig
-	if err := json.Unmarshal(configFileData, &config); err != nil {
-		log.Fatalf("Error unmarshalling config file: %s\n", err)
+	//Looks up system information to SRIOV enabled Devices
+	devices := mellanox.GetAllSriovEnabledDevices()
+	if len(devices) == 0 {
+		log.Println("ERROR: no SRIOV enabled PF devices found on your system!")
 	}
-
-	//print out config
-	output, err := json.MarshalIndent(&config, " ", "\t")
-	if err != nil {
-		log.Fatalf("Error marshalling config to print out: %s\n", err)
+	config := src.SystemConfig{
+		PfNetDevices: make([]src.PfNetDevice, 0),
 	}
-	log.Printf("Finished Loading Config:\n%s\n", string(output))
-
-	if len(config.PfNetdevices) == 0 {
-		log.Println("ERROR: no PfNetdevices set in configuration, No RMDA pods can be scheduled to this node")
-	}
-
-	if len(config.PfMaxBandwidth) == 0 {
-		log.Println("ERROR: no PfMaxBandwidth set in configuration, No RMDA pods can be scheduled to this node")
-	}
-
-	if len(config.PfMaxBandwidth) != len(config.PfNetdevices) {
-		log.Println("ERROR: len(config.PfMaxBandwidth) != len(config.PfNetdevices), No RMDA pods can be scheduled to this node")
+	for _, device := range devices {
+		rate, err := mellanox.GetPfMaxSendingRate(device)
+		if err != nil {
+			log.Printf("ERROR: PF device[%s] max sending rate not found, setting to 0: %s\n", device, err)
+			continue
+		}
+		log.Printf("INFO: Found SRIOV enabled PF device[%s] with rate in bytes [%d]\n", device, rate)
+		config.PfNetDevices = append(config.PfNetDevices, src.PfNetDevice{
+			Name:           device,
+			MaxSendingRate: rate,
+		})
 	}
 
 	//start up server

@@ -37,16 +37,6 @@ spec:
           requests:
             cpu: 100m
             memory: 100Mi
-        volumeMounts:
-          - name: config
-            mountPath: /k8s-rdma-sriov
       terminationGracePeriodSeconds: 30
-      volumes:
-        - name: config
-          configMap:
-            name: rdma-devices
-            items:
-            - key: config.json
-              path: config.json
   updateStrategy:
     type: RollingUpdate
