@@ -11,7 +11,8 @@ import (
 	"strconv"
 	"strings"
 
-	sriov "github.com/Mellanox/sriov-cni/src"
+	"github.com/cal8384/k8s-rdma-common/rdma_hardware_info"
+	"github.com/swrap/sriovnet"
 )
 
 const (
@@ -47,7 +48,7 @@ func isVfAllocated(pf string, vfi uint) (bool, error) {
 //directory does not exist. For each line of data in the configuration file,
 //if it can't split the configuration line by a ':' delimeter it skips that line
 //prints out a warning, but continues to run.
-func setVFConfig(pf string, vfi uint, vf *VF) error {
+func setVFConfig(pf string, vfi uint, vf *rdma_hardware_info.VF) error {
 	vfConfigFilePath := fmt.Sprintf("/sys/class/net/%s/device/sriov/%d/config", pf, vfi)
 	vfConfigFile, err := os.Open(vfConfigFilePath)
 	if err != nil {
@@ -134,38 +135,31 @@ func setVFConfig(pf string, vfi uint, vf *VF) error {
 
 //getNodeData reads the systems configuration files for each pf
 //and vf.
-func getNodeData(systemConfig SystemConfig) ([]*PF, error) {
-	//checks pfs and make sure all are enabled
-	//orders pfs by the most number of vfs earlier on
-	pfs, err := sriov.GetPFs("", systemConfig.GetDeviceNames())
-	if err != nil {
-		return nil, err
-	}
-
-	nodePfs := make([]*PF, 0)
+func getNodeData(systemConfig SystemConfig) ([]*rdma_hardware_info.PF, error) {
+	nodePfs := make([]*rdma_hardware_info.PF, 0)
 
 	//go through every pf and get all pf information
-	for _, pf := range pfs {
-		totalVfs, err := sriov.GetsriovNumfs(pf)
+	for _, pf := range systemConfig.PfNetDevices {
+		totalVfs, err := sriovnet.GetCurrentVfCount(pf.Name)
 		if err != nil {
-			log.Printf("Error counting vfs for pf[%s]: %s\n", pf, err)
+			log.Printf("Error counting vfs for pf[%s]: %s\n", pf.Name, err)
 			continue
 		}
-		tmpNodePf := PF{
-			VFs: make([]*VF, 0),
+		tmpNodePf := rdma_hardware_info.PF{
+			VFs: make([]*rdma_hardware_info.VF, 0),
 		}
 		//get information about each vf that is part of pf
 		for ivf := 0; ivf < totalVfs; ivf++ {
-			isAllocated, err := isVfAllocated(pf, uint(ivf))
+			isAllocated, err := isVfAllocated(pf.Name, uint(ivf))
 			if err != nil {
 				log.Printf("Error checking allocation: %s\n", err)
 				continue
 			}
 
-			var vf VF
-			if err := setVFConfig(pf, uint(ivf), &vf); err != nil {
+			var vf rdma_hardware_info.VF
+			if err := setVFConfig(pf.Name, uint(ivf), &vf); err != nil {
 				log.Printf("ERROR: Failed to add vf[%d] for pf[%s]: %s\n",
-					ivf, pf, err)
+					ivf, pf.Name, err)
 				continue
 			}
 			vf.Allocated = isAllocated
@@ -176,9 +170,9 @@ func getNodeData(systemConfig SystemConfig) ([]*PF, error) {
 			}
 			tmpNodePf.VFs = append(tmpNodePf.VFs, &vf)
 		}
-		rate, err := systemConfig.GetDeviceSendingRate(pf)
+		rate, err := systemConfig.GetDeviceSendingRate(pf.Name)
 		if err != nil {
-			log.Printf("ERROR: retrieving device[%s] sending rate: %s\n", pf, err)
+			log.Printf("ERROR: retrieving device[%s] sending rate: %s\n", pf.Name, err)
 		}
 		tmpNodePf.CapacityTxRate = rate
 		nodePfs = append(nodePfs, &tmpNodePf)
@@ -186,6 +180,8 @@ func getNodeData(systemConfig SystemConfig) ([]*PF, error) {
 	return nodePfs, nil
 }
 
+//CreateServer starts up a http endpoint given a port number and a system config that must be
+//set that contains information about the SRIOV interfaces on the device
 func CreateServer(port string, systemConfig SystemConfig) *http.Server {
 	http.HandleFunc("/getpfs", func(w http.ResponseWriter, r *http.Request) {
 		pfs, err := getNodeData(systemConfig)
