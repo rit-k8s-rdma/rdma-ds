@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/cal8384/k8s-rdma-common/mellanox"
 	"github.com/swrap/rdma-ds/src"
+	"github.com/swrap/sriovnet"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 	log.Printf("INFO: Gathering system information...\n")
 
 	//Looks up system information to SRIOV enabled Devices
-	devices := mellanox.GetAllSriovEnabledDevices()
+	devices := sriovnet.GetAllSriovEnabledDevices()
 	if len(devices) == 0 {
 		log.Println("ERROR: no SRIOV enabled PF devices found on your system!")
 	}
@@ -21,7 +21,7 @@ func main() {
 		PfNetDevices: make([]src.PfNetDevice, 0),
 	}
 	for _, device := range devices {
-		rate, err := mellanox.GetPfMaxSendingRate(device)
+		rate, err := sriovnet.GetPfMaxSendingRate(device)
 		if err != nil {
 			log.Printf("ERROR: PF device[%s] max sending rate not found, setting to 0: %s\n", device, err)
 			continue
