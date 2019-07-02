@@ -146,7 +146,8 @@ func getNodeData(systemConfig SystemConfig) ([]*rdma_hardware_info.PF, error) {
 			continue
 		}
 		tmpNodePf := rdma_hardware_info.PF{
-			VFs: make([]*rdma_hardware_info.VF, 0),
+			Name: pf.Name,
+			VFs:  make([]*rdma_hardware_info.VF, 0),
 		}
 		//get information about each vf that is part of pf
 		for ivf := 0; ivf < totalVfs; ivf++ {
