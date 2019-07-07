@@ -7,24 +7,28 @@ import (
 	"github.com/swrap/sriovnet"
 )
 
-func configSriov(pfNetdevName string) (*sriovnet.PfNetdevHandle, error) {
+func configSriov(pfNetdevName string) error {
 	var err error
 
 	//enables SRIOV for all devices with cur number of vfs = 0 and has sriov
+	log.Println("INFO: enabling sriov (if not already enabled) on netdevice:", pfNetdevName)
 	err = sriovnet.EnableSriov(pfNetdevName)
 	if err != nil {
-		return nil, fmt.Errorf("failed to enable sriov for netdevice=%s: %s", pfNetdevName, err)
-	}
-	pfHandle, err := sriovnet.GetPfNetdevHandle(pfNetdevName)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get PF handle for netdevice=%s: %s", pfNetdevName, err)
+		return fmt.Errorf("failed to enable sriov for netdevice=%s: %s", pfNetdevName, err)
 	}
 
+	log.Println("INFO: getting pf netdevice handle on:", pfNetdevName)
+	pfHandle, err := sriovnet.GetPfNetdevHandle(pfNetdevName)
+	if err != nil {
+		return fmt.Errorf("failed to get PF handle for netdevice=%s: %s", pfNetdevName, err)
+	}
+
+	log.Println("INFO: configuring vfs on netdevice:", pfNetdevName)
 	err = sriovnet.ConfigVfs(pfHandle, true)
 	if err != nil {
-		return nil, fmt.Errorf("failed to config netdevice=%s: %s", pfNetdevName, err)
+		return fmt.Errorf("failed to config netdevice=%s: %s", pfNetdevName, err)
 	}
-	return pfHandle, nil
+	return nil
 }
 
 func main() {
@@ -35,7 +39,7 @@ func main() {
 	}
 	for _, device := range devices {
 		log.Printf("INFO: configuring SRIOV on netdevice=%s, number of devices=%d\n", device, len(devices))
-		_, err := configSriov(device)
+		err := configSriov(device)
 		if err != nil {
 			log.Println("ERROR: Failed to configure sriov: ", err)
 			continue
