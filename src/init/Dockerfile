@@ -2,7 +2,7 @@ FROM golang:1.12 as builder
 
 WORKDIR /go/src/github.com/swrap/rdma-ds
 
-COPY bin/app .
+COPY bin/init ./app
 
 # RUN ( cd src/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app && mv app ../../ )
 

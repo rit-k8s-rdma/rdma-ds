@@ -23,6 +23,7 @@ mkdir -p bin
         
 #     done
 # done
-( cd src/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app && mv app ../../bin )
+( cd src/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o server && mv server ../../bin )
+( cd src/init && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o init && mv init ../../bin )
 
 echo "Completed building, binary labelled '$BINARY_NAME' can be found in bin."

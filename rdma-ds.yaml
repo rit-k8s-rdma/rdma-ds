@@ -20,6 +20,7 @@ spec:
         name: rdma-ds
     spec:
       hostNetwork: true #exposes port to nodes network
+      terminationGracePeriodSeconds: 30
       tolerations:
       - key: node-role.kubernetes.io/master
         effect: NoSchedule
@@ -37,6 +38,11 @@ spec:
           requests:
             cpu: 100m
             memory: 100Mi
-      terminationGracePeriodSeconds: 30
+      initContainers:
+      - name: rdma-ds-init
+        image: rdma-ds-init:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
   updateStrategy:
     type: RollingUpdate

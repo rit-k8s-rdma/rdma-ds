@@ -13,7 +13,7 @@ func main() {
 	log.Printf("INFO: Gathering system information...\n")
 
 	//Looks up system information to SRIOV enabled Devices
-	devices := sriovnet.GetAllSriovEnabledDevices()
+	devices := sriovnet.GetAllRdmaSriovSupportedDevices()
 	if len(devices) == 0 {
 		log.Println("ERROR: no SRIOV enabled PF devices found on your system!")
 	}
