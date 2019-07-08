@@ -44,5 +44,11 @@ spec:
         imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true
+        resources:
+          limits:
+            memory: 2Gi
+          requests:
+            cpu: 100m
+            memory: 2Gi
   updateStrategy:
     type: RollingUpdate

@@ -31,8 +31,11 @@ const (
 //they are being used in a pod.
 func isVfAllocated(pf string, vfi uint) (bool, error) {
 	vfDir := fmt.Sprintf("/sys/class/net/%s/device/virtfn%d/net", pf, vfi)
-	if _, err := os.Lstat(vfDir); err != nil {
-		return false, fmt.Errorf("failed to open the virtfn%d dir of the device %s, vfDir[%s] could not be opened: %s", vfi, pf, vfDir, err)
+	if _, err := os.Stat(vfDir); err != nil {
+		if os.IsNotExist(err) {
+			//file does not exist
+			return false, fmt.Errorf("failed to open the virtfn%d dir of the device %s, vfDir[%s] could not be opened: %s", vfi, pf, vfDir, err)
+		}
 	}
 	infos, err := ioutil.ReadDir(vfDir)
 	if err != nil || len(infos) == 0 {
@@ -153,7 +156,7 @@ func getNodeData(systemConfig SystemConfig) ([]*rdma_hardware_info.PF, error) {
 		for ivf := 0; ivf < totalVfs; ivf++ {
 			isAllocated, err := isVfAllocated(pf.Name, uint(ivf))
 			if err != nil {
-				log.Printf("Error checking allocation: %s\n", err)
+				log.Printf("ERROR: checking allocation: %s\n", err)
 				continue
 			}
 
