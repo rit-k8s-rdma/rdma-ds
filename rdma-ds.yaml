@@ -46,7 +46,7 @@ spec:
           privileged: true
         resources:
           limits:
-            memory: 2Gi
+            memory: 2Gi # must set memory limit high b/c mellanox uses a lot, error were seen at 120 VFs, with a limit of 200Mi
           requests:
             cpu: 100m
             memory: 2Gi
