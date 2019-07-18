@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cal8384/k8s-rdma-common/rdma_hardware_info"
-	"github.com/swrap/sriovnet"
+	"github.com/rit-k8s-rdma/rit-k8s-rdma-common/rdma_hardware_info"
+	sriovnet "github.com/rit-k8s-rdma/rit-k8s-rdma-sriovnet"
 )
 
 const (

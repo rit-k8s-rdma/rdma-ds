@@ -1,14 +1,16 @@
 FROM golang:1.12 as builder
 
-WORKDIR /go/src/github.com/swrap/rdma-ds
+WORKDIR /go/src/github.com/rit-k8s-rdma/rit-k8s-rdma-ds
 
-COPY bin/init ./app
+COPY . .
 
-# RUN ( cd src/server && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app && mv app ../../ )
+WORKDIR /go/src/github.com/rit-k8s-rdma/rit-k8s-rdma-ds/src/init
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o app
+RUN mv app ../../
 
 FROM scratch
 
 WORKDIR /bin
-COPY --from=builder /go/src/github.com/swrap/rdma-ds/app .
+COPY --from=builder /go/src/github.com/rit-k8s-rdma/rit-k8s-rdma-ds/app .
 
 CMD ["./app"]

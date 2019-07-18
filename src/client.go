@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/cal8384/k8s-rdma-common/rdma_hardware_info"
+	"github.com/rit-k8s-rdma/rit-k8s-rdma-common/rdma_hardware_info"
 )
 
 func GetNodeInfo(ip string, port string) ([]*rdma_hardware_info.PF, error) {

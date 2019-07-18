@@ -1,56 +1,79 @@
 # rdma-ds
 
-This dameon-set will run on every node and will be a RESTful API endpoint for querying data about the node that it is currently running on.
-
-## Test API
-To test the API run the following commands:
-```
-cd src
-go test
-```
+This dameon-set will run on every node and will be a RESTful API endpoint for querying RDMA SRIOV data about the node that it is currently running on. There are two processes that exist within this repo. 
+1. init - the init processes will startup all sriov devices, this processes should only be run once when starting up the server to enable all SRIOV devices
+2. server - the server processes will open up the RESTful API endpoint for querying data about the avialable devices and SRIOV virtual functions (VF's)
 
 ## Environmental Variables
-The following variables are able to be modefied to change the server running:
+The following variables are able to be modefied to change the port that the server is running on:
   - PORT - default 54005 - the port number for the server to run on
+Example:
+```
+export PORT=656565
+```
 
 ## Building Binaries (for testing or for use)
 
 ### Client
-To use the client library import `github.com/swrap/rdma-ds/src` and utilize the built in supported functions.
+To use the client library import `github.com/rit-k8s-rdma/rit-k8s-rdma-ds/src` and utilize the built in supported functions after starting up the init and then the server process.
 
-### Server Build and Run
-To start the server run the script below:
+### Building and Running Init Process
+To build the init process:
 ```
-./build_run_server.sh
+cd src/init
+go install
 ```
-If you want to specify a port number, set the environment variable `PORT` like below:
-```
-PORT=40007 ./build_run_server.sh
-```
+A binary should have been built and saved into your `$GOPATH/bin/` directory under the name `init`.
 
-### Server Build for all Architectures
-To build binaries for all architures and place them in a bin directory run:
+To run it:
 ```
-./build_server.sh
+$GOPATH/init
 ```
+*Note* depending on the amount of VF's you have configured, this could take some time to bind and unbind them (aka sit back and sip your coffee while you wait).
+
+### Building and Running Server Process
+The server process should start *after* the init process has successfully ran. To build the server process:
+```
+cd src/server
+go install
+```
+A binary should have been built and saved into your `$GOPATH/bin/` directory under the name `server`.
+
+To run it:
+```
+$GOPATH/server
+```
+This process will startup a server on port 54005 unless you exported another environmental variable for the port. You query it via `localhost:<port-num>` and to get your vf information `localhost:<port-num>/getpfs`.
 
 ## Docker
 To build the docker image run the following in the root directory of this repo:
 ```
-docker build -t rdma-ds:latest .
+VERSION=<version> ./build_docker_local.sh
 ```
-This will build an image with `rdma-ds` as its name.
+This will build two images:
+1. `rdma-ds-init:<version>` - this image is the init image that only needs to be run once to set up all the VF's.
 
-To run this image run the following command:
+To run the `rdma-ds-init` image run the following command:
 ```
-docker run -it --rm --name test -e PORT=5000 --network host rdma-ds-v1
+docker run -it --rm --name rdma-ds-init --privileged rdma-ds-init:<version>
+```
+This will do the following:
+  - `-it` - runs in interactive mode
+  - `--rm` - removes the container when stopped
+  - `--privileged` - this container must be run in privileged mode b/c it is access network resources
+
+2. `rdma-ds-server:<version>` - this image is the server image, which starts up an RESTful API for the VF information
+
+To run the `rdma-ds-server` image run the following command:
+```
+docker run -it --rm --name test -e PORT=5000 --network host rdma-ds-server:<version>
 ```
 This will do the following:
   - `-it` - runs in interactive mode
   - `--rm` - removes the container when stopped
   - `-e PORT=5000` - specifies the port for the server to run on, if none is specified it will default to port 54005
   - `--network host` - will share the network with your host OS, so you can access the api by going to localhost:5000
-  - `rdma-ds` - the name of the image. NOTE if you build with a different image name, you will need to change this
+
 
 ### Avoiding Dockerhub
 If you want to avoid docker hub completely, you can save the image in a tar and than load it in.
@@ -64,8 +87,8 @@ docker load < <save-name>.tar
 ```
 Ex:
 ```
-docker save rdma-ds:latest > rdma-ds.tar
-docker load < rdma-ds.tar
+docker save rdma-ds-server:latest > rdma-ds-server.tar
+docker load < rdma-ds-server.tar
 ```
 
 ## Kubernetes
@@ -89,8 +112,3 @@ Check updating status
 ```
 kubectl rollout status ds/<daemonset-name> --namespace=kube-system
 ```
-
-## How it works
-Assumptions:
- - VFs in use will move the `/sys/class/net/<pf-name>/device/virtfn<vf-number>/net` file out of namespace when the VF is in use
- - Must have config-map set for both pfNetDevices and maxPfBandwidth

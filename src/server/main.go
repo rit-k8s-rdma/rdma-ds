@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/swrap/rdma-ds/src"
-	"github.com/swrap/sriovnet"
+	"github.com/rit-k8s-rdma/rit-k8s-rdma-ds/src"
+	"github.com/rit-k8s-rdma/rit-k8s-rdma-sriovnet"
 )
 
 func main() {
