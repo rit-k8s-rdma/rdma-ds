@@ -92,11 +92,9 @@ docker load < rdma-ds-server.tar
 ```
 
 ## Kubernetes
-In order to deploy this application we have created a yaml file for you to use within Kubernetes. The yaml file is labelled `rdma-ds-yaml` and can be found in the [here](rdma-ds.yaml).
-
 In order to run this application in kuberentes you must execute the following command:
 ```
-kubectl apply -f <dameonset-config-file>.yaml
+kubectl apply -f rdma-ds-yaml
 ```
 This will spin up this repo with the dameonset. Note the current implementation you must first put the docker images on the remote nodes before running because this is a private repo.
 
