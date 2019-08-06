@@ -29,8 +29,8 @@ spec:
       - key: CriticalAddonsOnly
         operator: Exists
       containers:
-      - name: ritk8srdma/rit-k8s-rdma-ds-server
-        image: rdma-ds:latest
+      - name: rdma-ds-server
+        image: ritk8srdma/rit-k8s-rdma-ds-server:latest
         imagePullPolicy: IfNotPresent #needed so that it does not try to pull a public image. Image must be in nodes docker image repository
         resources:
           limits:
@@ -39,8 +39,8 @@ spec:
             cpu: 100m
             memory: 100Mi
       initContainers:
-      - name: ritk8srdma/rit-k8s-rdma-ds-init
-        image: rdma-ds-init:latest
+      - name: rdma-ds-init
+        image: ritk8srdma/rit-k8s-rdma-ds-init:latest
         imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true
