@@ -31,7 +31,7 @@ spec:
       containers:
       - name: rdma-ds-server
         image: ritk8srdma/rit-k8s-rdma-ds-server:latest
-        imagePullPolicy: IfNotPresent #needed so that it does not try to pull a public image. Image must be in nodes docker image repository
+        imagePullPolicy: Always # Change to 'IfNotPresent' if you need to pull local image. Image must be in nodes docker image repository
         resources:
           limits:
             memory: 200Mi
@@ -41,7 +41,7 @@ spec:
       initContainers:
       - name: rdma-ds-init
         image: ritk8srdma/rit-k8s-rdma-ds-init:latest
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always # Change to 'IfNotPresent' if you need to pull local image. Image must be in nodes docker image repository
         securityContext:
           privileged: true
         resources:
